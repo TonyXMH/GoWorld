@@ -1,7 +1,7 @@
 package proto
 
 import (
-	"../uuid"
+	"github.com/TonyXMH/GoWorld/uuid"
 	"testing"
 )
 

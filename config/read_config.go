@@ -1,7 +1,7 @@
 package config
 
 import (
-	"../gwlog"
+	"github.com/TonyXMH/GoWorld/gwlog"
 	"fmt"
 	"gopkg.in/ini.v1"
 	"strconv"
