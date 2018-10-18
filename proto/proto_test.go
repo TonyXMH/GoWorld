@@ -4,6 +4,7 @@ import (
 	"../uuid"
 	"testing"
 )
+
 //MsgPack > Json > Gob
 type testMsg struct {
 	ID        string
