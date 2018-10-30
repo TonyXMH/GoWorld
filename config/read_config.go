@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/TonyXMH/GoWorld/gwlog"
+	"encoding/json"
 	"fmt"
+	"github.com/TonyXMH/GoWorld/gwlog"
 	"gopkg.in/ini.v1"
 	"strconv"
 	"strings"
@@ -62,6 +63,14 @@ func GetDispatcher() *DispatcherConfig {
 	return &Get().dispatcher
 }
 
+func DumpPretty(cfg interface{}) string {
+	s, err := json.MarshalIndent(cfg, "", "    ")
+	if err != nil {
+		return err.Error()
+	}
+	return string(s)
+
+}
 func readGoWorldConfig() *GoWorldConfig {
 	config := GoWorldConfig{
 		games: map[int]*GameConfig{},

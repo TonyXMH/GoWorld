@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/TonyXMH/GoWorld/gwlog"
 	"encoding/json"
+	"github.com/TonyXMH/GoWorld/gwlog"
 	"testing"
 )
 
