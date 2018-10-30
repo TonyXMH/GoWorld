@@ -3,11 +3,11 @@ package timer
 import (
 	"github.com/TonyXMH/GoWorld/gwlog"
 	//"net/http/pprof"
+	"math/rand"
 	"os"
+	"runtime/pprof"
 	"testing"
 	"time"
-	"math/rand"
-	"runtime/pprof"
 )
 
 func init() {
@@ -114,18 +114,18 @@ func TestTimerPerformance(t *testing.T) {
 	}
 	pprof.StartCPUProfile(f)
 	duration := 10 * time.Second
-	for i:=0;i<400000 ;i++  {
-		if rand.Float32()<0.5{
-			d:=time.Duration(rand.Int63n(int64(duration)))
+	for i := 0; i < 400000; i++ {
+		if rand.Float32() < 0.5 {
+			d := time.Duration(rand.Int63n(int64(duration)))
 			AddCallback(d, func() {
 
 			})
-		}else{
-			d:=time.Duration(rand.Int63n(int64(time.Second)))
+		} else {
+			d := time.Duration(rand.Int63n(int64(time.Second)))
 			AddTimer(d, func() {})
 		}
 	}
-	gwlog.Info("Waiting for",duration,"...")
+	gwlog.Info("Waiting for", duration, "...")
 	time.Sleep(duration)
 	pprof.StopCPUProfile()
 }

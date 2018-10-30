@@ -2,10 +2,10 @@ package timer
 
 import (
 	"container/heap"
+	"github.com/TonyXMH/GoWorld/gwlog"
 	"runtime/debug"
 	"sync"
 	"time"
-	"github.com/TonyXMH/GoWorld/gwlog"
 )
 
 const MIN_TIMER_INTERVAL = 1 * time.Millisecond
