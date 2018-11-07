@@ -52,37 +52,37 @@ func (p *Packet) AppendUint64(v uint64) {
 	p.payloadLen += 8
 }
 
-func (p*Packet) AppendBytes(v[]byte)  {
-	payloadEnd:= PREPAYLOAD_SIZE + p.payloadLen
+func (p *Packet) AppendBytes(v []byte) {
+	payloadEnd := PREPAYLOAD_SIZE + p.payloadLen
 	bytesLen := uint32(len(v))
-	copy(p.bytes[payloadEnd:payloadEnd+bytesLen],v)
-	p.payloadLen+=bytesLen
+	copy(p.bytes[payloadEnd:payloadEnd+bytesLen], v)
+	p.payloadLen += bytesLen
 }
 
-func (p*Packet)ReadUint16()(v uint16)  {
+func (p *Packet) ReadUint16() (v uint16) {
 	pos := p.readCursor + PREPAYLOAD_SIZE
-	v = PACKET_ENDIAN.Uint16(p.bytes[pos:pos+2])
+	v = PACKET_ENDIAN.Uint16(p.bytes[pos : pos+2])
 	p.readCursor += 2
 	return
 }
 
-func (p*Packet)ReadUint32()(v uint32)  {
-	pos:= p.readCursor + PREPAYLOAD_SIZE
-	v=PACKET_ENDIAN.Uint32(p.bytes[pos:pos+4])
-	p.readCursor+=4
-	return
-}
-
-func (p*Packet)ReadUint64()(v uint64)  {
-	pos:=p.readCursor + PREPAYLOAD_SIZE
-	v=PACKET_ENDIAN.Uint64(p.bytes[pos:pos+8])
-	p.readCursor+=8
-	return
-}
-
-func (p*Packet)ReadBytes(size uint32)[]byte  {
+func (p *Packet) ReadUint32() (v uint32) {
 	pos := p.readCursor + PREPAYLOAD_SIZE
-	bytes:= p.bytes[pos:pos+size]
+	v = PACKET_ENDIAN.Uint32(p.bytes[pos : pos+4])
+	p.readCursor += 4
+	return
+}
+
+func (p *Packet) ReadUint64() (v uint64) {
+	pos := p.readCursor + PREPAYLOAD_SIZE
+	v = PACKET_ENDIAN.Uint64(p.bytes[pos : pos+8])
+	p.readCursor += 8
+	return
+}
+
+func (p *Packet) ReadBytes(size uint32) []byte {
+	pos := p.readCursor + PREPAYLOAD_SIZE
+	bytes := p.bytes[pos : pos+size]
 	p.readCursor += size
 	return bytes
 }
