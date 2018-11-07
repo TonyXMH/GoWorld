@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"../timer"
 	"github.com/TonyXMH/GoWorld/gwlog"
 	"reflect"
 )
@@ -11,21 +12,25 @@ var (
 )
 
 type EntityManager struct {
-	entities map[EntityID]IEntity
+	entities EntityMap
 }
 
 func newEntityManager() *EntityManager {
 	return &EntityManager{
-		entities: map[EntityID]IEntity{},
+		entities: EntityMap{},
 	}
 }
 
-func (em *EntityManager) Put(entity *Entity) {
-	em.entities[entity.ID] = entity
+func (em *EntityManager) put(entity *Entity) {
+	em.entities.Add(entity)
 }
 
-func (em *EntityManager) Get(id EntityID) IEntity {
-	return em.entities[id]
+func (em *EntityManager) del(id EntityID) {
+	em.entities.Del(id)
+}
+
+func (em *EntityManager) get(id EntityID) IEntity {
+	return em.entities.Get(id)
 }
 
 func RegisterEntity(typename string, entityPtr IEntity) {
@@ -39,8 +44,8 @@ func RegisterEntity(typename string, entityPtr IEntity) {
 	gwlog.Debug(">>> RegisterEntity %s=>%s<<<", typename, entityType.Name())
 }
 
-func CreateEntity(typeName string) {
-	gwlog.Debug("CreateEntity: %s", typeName)
+func createEntity(typeName string, space *Space) EntityID {
+	gwlog.Debug("CreateEntity: %s in space %s", typeName, space)
 	entityType, ok := registeredEntityTypes[typeName]
 	if !ok {
 		gwlog.Panicf("unknown entity type:%s", typeName)
@@ -50,6 +55,14 @@ func CreateEntity(typeName string) {
 	entity := reflect.Indirect(entityPtrVal).FieldByName("Entity").Addr().Interface().(*Entity)
 	entity.ID = entityID
 	entity.I = entityPtrVal.Interface().(IEntity)
-	entityManager.Put(entity)
+	entity.TypeName = typeName
+	entity.timers = map[*timer.Timer]struct{}{}
+	initAOI(&entity.aoi)
+	entity.I.OnInit()
+	entityManager.put(entity)
 	entity.I.OnCreated()
+	if space != nil {
+		space.enter(entity)
+	}
+	return entityID
 }
