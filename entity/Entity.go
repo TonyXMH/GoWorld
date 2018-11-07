@@ -28,6 +28,7 @@ type Entity struct {
 type IEntity interface {
 	OnInit()
 	OnCreated()
+	OnEnterSpace()
 	OnDestroy()
 }
 
@@ -78,12 +79,17 @@ func (e *Entity) clearTimers() {
 	}
 	e.timers = map[*timer.Timer]struct{}{}
 }
+
 func (e *Entity) OnInit() {
 	gwlog.Warn("%s.OnInit not implemented", e)
 }
 
 func (e *Entity) OnCreated() {
 	gwlog.Info("%s.OnCreated", e)
+}
+
+func (e *Entity) OnEnterSpace() {
+	gwlog.Info("%s.OnEnterSpace >>> %s", e, e.space)
 }
 
 func (e *Entity) OnDestroy() {
