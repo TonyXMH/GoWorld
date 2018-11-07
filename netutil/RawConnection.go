@@ -5,7 +5,7 @@ import (
 )
 
 type RawConnection struct {
-	Conn net.Conn
+	net.Conn
 }
 
 func NewRawConnection(conn net.Conn) RawConnection {
@@ -72,16 +72,4 @@ func (c RawConnection) SendAll(data []byte) error {
 		data = data[n:]
 	}
 	return nil
-}
-
-func (c RawConnection) Read(data []byte) (int, error) {
-	return c.Conn.Read(data)
-}
-
-func (c RawConnection) Write(data []byte) (int, error) {
-	return c.Conn.Write(data)
-}
-
-func (c RawConnection) Close() error {
-	return c.Conn.Close()
 }

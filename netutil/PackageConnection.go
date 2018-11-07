@@ -32,48 +32,26 @@ func NewPacketConnection(conn net.Conn) PacketConnection {
 	return PacketConnection{binconn: NewBinaryConnection(conn)}
 }
 
-type Packet struct {
-	payloadLen uint32
-	bytes      [MAX_PACKET_SIZE]byte
-}
-
-func (p *Packet) Payload() []byte {
-	return p.bytes[PREPAYLOAD_SIZE : PREPAYLOAD_SIZE+p.payloadLen]
-}
-
-func (p *Packet) Release() {
-	messagePool.Put(p)
-}
-
-func (p *Packet) AppendByte(b byte) {
-	p.bytes[PREPAYLOAD_SIZE+p.payloadLen] = b
-	p.payloadLen++
-}
-
-func (p *Packet) prepareSend() {
-	NETWORK_ENDIAN.PutUint32(p.bytes[:SIZE_FIELD_SIZE], p.payloadLen)
-}
-
 func allocPacket() *Packet {
 	msg := messagePool.Get().(*Packet)
 	gwlog.Debug("ALLOC %p", msg)
 	return msg
 }
 
-func (mc *PacketConnection) NewPacket() *Packet {
+func (pc PacketConnection) NewPacket() *Packet {
 	return allocPacket()
 }
 
-func (mc *PacketConnection) SendPacket(packet *Packet) error {
+func (pc PacketConnection) SendPacket(packet *Packet) error {
 	packet.prepareSend()
-	err := mc.binconn.SendAll(packet.bytes[:PREPAYLOAD_SIZE+packet.payloadLen])
+	err := pc.binconn.SendAll(packet.bytes[:PREPAYLOAD_SIZE+packet.payloadLen])
 	return err
 }
 
-func (mc *PacketConnection) RecvPacket() (*Packet, error) {
+func (pc PacketConnection) RecvPacket() (*Packet, error) {
 	packet := allocPacket()
 	payloadLenBuf := packet.bytes[:SIZE_FIELD_SIZE]
-	err := mc.binconn.RecvAll(payloadLenBuf)
+	err := pc.binconn.RecvAll(payloadLenBuf)
 	if err != nil {
 		packet.Release()
 		return nil, err
@@ -84,10 +62,26 @@ func (mc *PacketConnection) RecvPacket() (*Packet, error) {
 		packet.Release()
 		return nil, fmt.Errorf("message packet too large:%v", payloadLen)
 	}
-	err = mc.binconn.RecvAll(packet.bytes[PREPAYLOAD_SIZE : PREPAYLOAD_SIZE+payloadLen])
+	err = pc.binconn.RecvAll(packet.bytes[PREPAYLOAD_SIZE : PREPAYLOAD_SIZE+payloadLen])
 	if err != nil {
 		packet.Release()
 		return nil, err
 	}
 	return packet, nil
+}
+
+func (pc PacketConnection) Close() {
+	pc.binconn.Close()
+}
+
+func (pc PacketConnection) RemoteAddr() net.Addr {
+	return pc.binconn.RemoteAddr()
+}
+
+func (pc PacketConnection) LocalAddr() net.Addr {
+	return pc.binconn.LocalAddr()
+}
+
+func (pc PacketConnection) String() string {
+	return fmt.Sprintf("[%s >>> %s]", pc.LocalAddr(), pc.RemoteAddr())
 }
