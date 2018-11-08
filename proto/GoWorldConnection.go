@@ -1,7 +1,7 @@
 package proto
 
 import (
-	"../entity"
+	. "../common"
 	"../netutil"
 	"net"
 )
@@ -26,14 +26,14 @@ func (gwc *GoWorldConnection) SendSetGameID(id int) error {
 	packet.AppendUint16(uint16(id))
 	return gwc.packetConn.SendPacket(packet)
 }
-func (gwc *GoWorldConnection) SendNotifyCreateEntity(id entity.EntityID) error {
+func (gwc *GoWorldConnection) SendNotifyCreateEntity(id EntityID) error {
 	packet := gwc.packetConn.NewPacket()
 	packet.AppendUint16(MT_NOTIFY_CREATE_ENTITY)
 	packet.AppendBytes([]byte(id))
 	return gwc.packetConn.SendPacket(packet)
 }
 
-func (gwc *GoWorldConnection) SendRegisterService(id entity.EntityID, serviceName string) error {
+func (gwc *GoWorldConnection) SendRegisterService(id EntityID, serviceName string) error {
 	packet := gwc.packetConn.NewPacket()
 	packet.AppendUint16(MT_REGISTER_SERVICE)
 	packet.AppendBytes([]byte(id))

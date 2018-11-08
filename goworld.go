@@ -1,6 +1,7 @@
 package GoWorld
 
 import (
+	. "./common"
 	"./components/game"
 	"./entity"
 )
@@ -19,6 +20,10 @@ func RegisterEntity(typeName string, entityPtr entity.IEntity) {
 
 func CreateSpace() {
 	entity.CreateSpace()
+}
+
+func CreateEntity(typeName string) EntityID {
+	return entity.CreateEntity(typeName)
 }
 
 func SetSpaceDelegate(delegate entity.ISpaceDelegate) {

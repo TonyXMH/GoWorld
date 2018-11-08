@@ -1,6 +1,7 @@
 package entity
 
 import (
+	. "../common"
 	"../timer"
 	"github.com/TonyXMH/GoWorld/gwlog"
 	"reflect"
@@ -65,4 +66,8 @@ func createEntity(typeName string, space *Space) EntityID {
 		space.enter(entity)
 	}
 	return entityID
+}
+
+func CreateEntity(typeName string) EntityID {
+	return createEntity(typeName, nil)
 }

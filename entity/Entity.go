@@ -1,20 +1,13 @@
 package entity
 
 import (
+	. "../common"
+	"../components/dispatcher/dispatcher_client"
 	"../timer"
-	"../uuid"
 	"fmt"
 	"github.com/TonyXMH/GoWorld/gwlog"
 	"time"
 )
-
-const ENTITY_LENGTH = uuid.UUID_LENGTH
-
-type EntityID string
-
-func GenEntityID() EntityID {
-	return EntityID(uuid.GenUUID())
-}
 
 type Entity struct {
 	ID       EntityID
@@ -78,6 +71,10 @@ func (e *Entity) clearTimers() {
 		t.Cancel()
 	}
 	e.timers = map[*timer.Timer]struct{}{}
+}
+
+func (e *Entity) RegisterService(serviceName string) {
+	dispatcher_client.GetDispatcherClientForSend().SendRegisterService(e.ID, serviceName)
 }
 
 func (e *Entity) OnInit() {

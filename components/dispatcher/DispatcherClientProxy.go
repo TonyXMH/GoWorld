@@ -1,7 +1,7 @@
 package dispatcher
 
 import (
-	"../../entity"
+	"../../common"
 	"../../netutil"
 	"../../proto"
 	"fmt"
@@ -39,12 +39,14 @@ func (dcp *DispatcherClientProxy) Serve() {
 		}
 		gwlog.Info("%s.RecvPacket: msgtype=%v,payload=%v", dcp, msgtype, pkt.Payload())
 		if msgtype == proto.MT_NOTIFY_CREATE_ENTITY {
-			eid := entity.EntityID(pkt.ReadBytes(entity.ENTITY_LENGTH))
+			eid := common.EntityID(pkt.ReadBytes(common.ENTITYID_LENGTH))
 			dcp.owner.HandleNotifyCreateEntity(dcp, eid)
 		} else if msgtype == proto.MT_SET_GAME_ID {
 			gameid := int(pkt.ReadUint16())
 			dcp.gameid = gameid
 			dcp.owner.HandleSetGameID(dcp, gameid)
+		} else {
+			gwlog.Warn("Unknown msgtype:%d", msgtype)
 		}
 	}
 }

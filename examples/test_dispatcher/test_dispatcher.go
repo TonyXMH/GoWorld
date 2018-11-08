@@ -4,7 +4,7 @@ import (
 	"../../components/dispatcher"
 	"flag"
 	"fmt"
-	"github.com/TonyXMH/GoWorld/config"
+	"../../config"
 	"github.com/TonyXMH/GoWorld/gwlog"
 )
 

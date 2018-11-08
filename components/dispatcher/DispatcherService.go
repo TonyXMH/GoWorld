@@ -1,24 +1,24 @@
 package dispatcher
 
 import (
-	"../../entity"
+	"../../common"
 	"fmt"
-	"github.com/TonyXMH/GoWorld/config"
-	"github.com/TonyXMH/GoWorld/gwlog"
-	"github.com/TonyXMH/GoWorld/netutil"
+	"../../config"
+	"../../gwlog"
+	"../../netutil"
 	"net"
 )
 
 type DispatcherService struct {
 	config     *config.DispatcherConfig
 	clients    map[int]*DispatcherClientProxy
-	entityLocs map[entity.EntityID]int
+	entityLocs map[common.EntityID]int
 }
 
 func NewDispatcherService(cfg *config.DispatcherConfig) *DispatcherService {
 	return &DispatcherService{
 		config:     cfg,
-		entityLocs: map[entity.EntityID]int{},
+		entityLocs: map[common.EntityID]int{},
 	}
 }
 
@@ -41,7 +41,7 @@ func (ds *DispatcherService) HandleSetGameID(dcp *DispatcherClientProxy, gameid 
 	return
 }
 
-func (ds *DispatcherService) HandleNotifyCreateEntity(dcp *DispatcherClientProxy, entityID entity.EntityID) {
+func (ds *DispatcherService) HandleNotifyCreateEntity(dcp *DispatcherClientProxy, entityID common.EntityID) {
 	gwlog.Debug("%s.HandleNotifyCreateEntity:dcp=%s,entity=%s", ds, dcp, entityID)
 	ds.entityLocs[entityID] = dcp.gameid
 }

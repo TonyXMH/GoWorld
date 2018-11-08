@@ -1,6 +1,9 @@
 package entity
 
-import "bytes"
+import (
+	. "../common"
+	"bytes"
+)
 
 type EntityMap map[EntityID]*Entity
 
