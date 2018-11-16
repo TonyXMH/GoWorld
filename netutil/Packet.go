@@ -1,6 +1,7 @@
 package netutil
 
 import (
+	"../common"
 	"encoding/binary"
 	"github.com/TonyXMH/GoWorld/gwlog"
 )
@@ -28,6 +29,25 @@ func (p *Packet) Release() {
 func (p *Packet) AppendByte(b byte) {
 	p.bytes[PREPAYLOAD_SIZE+p.payloadLen] = b
 	p.payloadLen += 1
+}
+
+func (p *Packet) ReadByte() (v byte) {
+	pos := p.readCursor + PREPAYLOAD_SIZE
+	v = p.bytes[pos]
+	p.readCursor += 1
+	return
+}
+
+func (p *Packet) AppendBool(b bool) {
+	if b {
+		p.AppendByte(1)
+	} else {
+		p.AppendByte(0)
+	}
+}
+
+func (p *Packet) ReadBool() (v bool) {
+	return p.ReadByte() != 0
 }
 
 func (p *Packet) prepareSend() {
@@ -59,17 +79,13 @@ func (p *Packet) AppendBytes(v []byte) {
 	p.payloadLen += bytesLen
 }
 
-func (p*Packet)AppendVarStr(s string)  {
+func (p *Packet) AppendVarStr(s string) {
 	p.AppendVarBytes([]byte(s))
 }
 
-func (p*Packet)AppendVarBytes(v []byte)  {
-	payloadEnd:=PREPAYLOAD_SIZE + p.payloadLen
-	bytesLen:=uint32(len(v))
-	PACKET_ENDIAN.PutUint32(p.bytes[payloadEnd:payloadEnd+4],bytesLen)
-	payloadEnd += 4
-	copy(p.bytes[payloadEnd:payloadEnd+bytesLen],v)
-	p.payloadLen += bytesLen + 4
+func (p *Packet) AppendVarBytes(v []byte) {
+	p.AppendUint32(uint32(len(v)))
+	p.AppendBytes(v)
 }
 
 func (p *Packet) ReadUint16() (v uint16) {
@@ -99,6 +115,25 @@ func (p *Packet) ReadBytes(size uint32) []byte {
 	p.readCursor += size
 	return bytes
 }
+
+func (p *Packet) AppendEntityID(id common.EntityID) {
+	p.AppendBytes([]byte(id))
+}
+
+func (p *Packet) ReadEntityID() common.EntityID {
+	return common.EntityID(p.ReadBytes(common.ENTITYID_LENGTH))
+}
+
+func (p *Packet) ReadVarStr() string {
+	b := p.ReadVarBytes()
+	return string(b)
+}
+
+func (p *Packet) ReadVarBytes() []byte {
+	blen := p.ReadUint32()
+	return p.ReadBytes(blen)
+}
+
 func (p *Packet) SetPayloadLen(plen uint32) {
 	if plen > MAX_PAYLOAD_LENGTH {
 		gwlog.Panicf("payload length too long:%d", plen)

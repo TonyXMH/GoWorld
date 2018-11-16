@@ -1,6 +1,7 @@
 package dispatcher_client
 
 import (
+	"../../../common"
 	"../../../proto"
 	"errors"
 	"github.com/TonyXMH/GoWorld/config"
@@ -58,6 +59,7 @@ func connectDispatchClient() (*DistpatcherClient, error) {
 
 type IDispatcherClientDelegate interface {
 	OnDispatcherClientConnect()
+	HandleDeclareService(entityID common.EntityID, serviceName string)
 }
 
 func Initialize(delegate IDispatcherClientDelegate) {
@@ -84,5 +86,13 @@ func serveDispatcherClient() {
 			continue
 		}
 		gwlog.Info("%s.RecvPacket: msgtype=%v,data=%v", dispatcherClient, msgtype, pkt.Payload())
+		if msgtype == proto.MT_DECLEARE_SERVICE {
+			eid := pkt.ReadEntityID()
+			serviceName := pkt.ReadVarStr()
+			dispatcherClientDelegate.HandleDeclareService(eid, serviceName)
+		} else {
+			gwlog.TraceError("unknown msgtype:%v", msgtype)
+		}
+		pkt.Release()
 	}
 }

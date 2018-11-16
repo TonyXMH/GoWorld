@@ -73,8 +73,12 @@ func (e *Entity) clearTimers() {
 	e.timers = map[*timer.Timer]struct{}{}
 }
 
-func (e *Entity) RegisterService(serviceName string) {
-	dispatcher_client.GetDispatcherClientForSend().SendRegisterService(e.ID, serviceName)
+func (e *Entity) Call(id EntityID, method string, args ...interface{}) {
+	call(id, method, args)
+}
+
+func (e *Entity) DeclareService(serviceName string) {
+	dispatcher_client.GetDispatcherClientForSend().SendDeclareService(e.ID, serviceName)
 }
 
 func (e *Entity) OnInit() {

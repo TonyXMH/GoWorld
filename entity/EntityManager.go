@@ -2,6 +2,7 @@ package entity
 
 import (
 	. "../common"
+	"../components/dispatcher/dispatcher_client"
 	"../timer"
 	"github.com/TonyXMH/GoWorld/gwlog"
 	"reflect"
@@ -70,4 +71,8 @@ func createEntity(typeName string, space *Space) EntityID {
 
 func CreateEntity(typeName string) EntityID {
 	return createEntity(typeName, nil)
+}
+
+func call(id EntityID, method string, args []interface{}) {
+	dispatcher_client.GetDispatcherClientForSend().SendCallEntityMethod(id, method)
 }

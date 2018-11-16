@@ -1,8 +1,10 @@
 package game
 
 import (
+	"../../common"
 	"../../components/dispatcher/dispatcher_client"
 	"../../config"
+	"../../entity"
 	"fmt"
 	"github.com/TonyXMH/GoWorld/gwlog"
 	"github.com/xiaonanln/goTimer"
@@ -11,14 +13,16 @@ import (
 )
 
 type GameService struct {
-	id           int
-	gameDelegate IGameDelegate
+	id                 int
+	gameDelegate       IGameDelegate
+	registeredServices map[string]entity.EntityIDSet
 }
 
 func newGameService(gameid int, delegate IGameDelegate) *GameService {
 	return &GameService{
-		id:           gameid,
-		gameDelegate: delegate,
+		id:                 gameid,
+		gameDelegate:       delegate,
+		registeredServices: map[string]entity.EntitySet{},
 	}
 }
 
@@ -49,4 +53,14 @@ func (gs *GameService) String() string {
 func (gs *GameService) OnDispatcherClientConnect() {
 	gwlog.Debug("%s.OnDispatcherClientConnect ...", gs)
 	dispatcher_client.GetDispatcherClientForSend().SendSetGameID(gs.id)
+}
+
+func (gs *GameService) HandleDeclareService(entityID common.EntityID, serviceName string) {
+	gwlog.Debug("%s.HandleDeclareService:%s declares %s", gs, entityID, serviceName)
+	eids, ok := gs.registeredServices[serviceName]
+	if !ok {
+		eids = entity.EntityIDSet{}
+		gs.registeredServices[serviceName] = eids
+	}
+	eids.Add(entityID)
 }

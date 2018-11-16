@@ -6,10 +6,6 @@ import (
 	"net"
 )
 
-const (
-	MSG_TYPE_SIZE = 2
-)
-
 type GoWorldConnection struct {
 	packetConn netutil.PacketConnection
 }
@@ -29,18 +25,35 @@ func (gwc *GoWorldConnection) SendSetGameID(id int) error {
 func (gwc *GoWorldConnection) SendNotifyCreateEntity(id EntityID) error {
 	packet := gwc.packetConn.NewPacket()
 	packet.AppendUint16(MT_NOTIFY_CREATE_ENTITY)
-	packet.AppendBytes([]byte(id))
+	packet.AppendEntityID(id)
 	return gwc.packetConn.SendPacket(packet)
 }
 
-func (gwc *GoWorldConnection) SendRegisterService(id EntityID, serviceName string) error {
+func (gwc *GoWorldConnection) SendDeclareService(id EntityID, serviceName string) error {
 	packet := gwc.packetConn.NewPacket()
-	packet.AppendUint16(MT_REGISTER_SERVICE)
-	packet.AppendBytes([]byte(id))
+	packet.AppendUint16(MT_DECLEARE_SERVICE)
+	packet.AppendEntityID(id)
 	packet.AppendVarStr(serviceName)
-	return gwc.packetConn.SendPacket(packet)
+	return gwc.sendPacketRelease(packet)
 }
 
+func (gwc *GoWorldConnection) SendCallEntityMethod(id EntityID, method string) error {
+	packet := gwc.packetConn.NewPacket()
+	packet.AppendUint16(MT_CALL_ENTITY_METHOD)
+	packet.AppendEntityID(id)
+	packet.AppendVarStr(method)
+	return gwc.sendPacketRelease(packet)
+}
+
+func (gwc *GoWorldConnection) SendPackt(pkt *netutil.Packet) error {
+	return gwc.packetConn.SendPacket(pkt)
+}
+
+func (gwc *GoWorldConnection) sendPacketRelease(pkt *netutil.Packet) error {
+	err := gwc.packetConn.SendPacket(pkt)
+	pkt.Release()
+	return err
+}
 func (gwc *GoWorldConnection) Recv(msgtype *MsgType_t) (*netutil.Packet, error) {
 	pkt, err := gwc.packetConn.RecvPacket()
 	if err != nil {
